@@ -36,32 +36,31 @@ app.use(function (req, res, next) {
   next();
 });
 
+// Define query abstraction
+function execute(query,res){
+  console.log("Attempting query: "+query);
+  connection.query(query, function(err,rows){
+    if(err){
+      console.log("Query " + err);
+      res.status(400).json(err);
+    } else {
+      res.status(200).json(rows);
+    }
+  });
+}
+
 // "ADD" api definition
 app.get('/add/:desc&:date&:time&:duration',function(req,res){
   var query = "insert into events (descrizione,date,time,durata) values ('";
   query += req.params.desc+"','"+req.params.date+"','"+req.params.time
   query += "',"+req.params.duration+");"
-  connection.query(query, function(err,rows){
-    console.log(err);
-    if(err){
-      res.status(400).json(err);
-    } else {
-      res.status(200).json(rows);
-    }
-  });
+  execute(query,res);
 });
 
 // "DELETE" api definition
 app.get('/delete/:id',function(req,res){
   var query = "delete from events where id = "+req.params.id+";";
-  connection.query(query, function(err,rows){
-    if(err){
-      console.log(err);
-      res.status(400).json(err);
-    } else {
-      res.status(200).json(rows);
-    }
-  });
+  execute(query,res);
 });
 
 // Start the service
