@@ -10,18 +10,26 @@ Tabelle:
 - Eventi
 - Regole?
 
-## API
+## Utilizzo
 
 - Risponde usando JSON per i dati
 
 Operazioni
 
-- visualizza giornata
-- momento occupato
-- periodo occupato
+- elenco eventi in una giornata
+- momento occupato?
+- periodo occupato?
 - inserisci
 - elimina
 
+## API
+
 ## Implementazione
 
-Node.js + express.js + MySQL
+Node.js + MySQL
+
+## Sviluppo
+
+Il progetto ha delle dipendenze su pacchetti disponibile nel registro di npm (node package manager). Npm è incluso insieme alla distribuzione di node.
+
+Per poter eseguire il software, aprire una shell nella directory del progetto e lanciare il comando `npm install`: npm leggerà le informazioni contenute in `package.json` e installerà le dipendenze necessarie automaticamente.
