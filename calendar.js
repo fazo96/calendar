@@ -1,36 +1,42 @@
+// Load modules
 var express = require('express');
 var fs = require('fs');
+var mysql = require('mysql');
+// Initialization
 var app = express();
-var port = 3000
 
-// Settings
-/*var settingsFile = fs.readFileSync('settings.json');
-var settings = JSON.parse(settings);
-port = settings.port*/
+// Default Settings
+var settings = {
+  port: 3000,
+  mysqlHost: 'localhost',
+  mysqlUser: 'root'
+}
+// Try to read settings from file
+console.log("Reading settings...");
+try {
+  var settingsFile = fs.readFileSync('./settings.json').toString();
+  settings = JSON.parse(settingsFile);
+  console.log("Using settings from settings.json");
+} catch (e) {
+  console.log("Failed reading settings.json file! Using defaults")
+}
 
-var mysql      = require('mysql');
+// Create sql connection
 var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : ''
+  host     : settings.mysqlHost,
+  user     : settings.mysqlUser,
+  password : settings.mysqlPassword
 });
-
 connection.connect();
 connection.query('use CALENDAR;');
 
-// Database test
-connection.query('SELECT 1 + 1 AS solution', function(err, rows, fields) {
-  if (err) throw err;
-  console.log('The solution is: ', rows[0].solution);
-});
-
-// Log middleware
+// Define logger middleware for all requests
 app.use(function (req, res, next) {
   console.log('Request from '+req.ip+' URL:'+req.originalUrl+' at time:', Date.now());
   next();
 });
 
-// ADD api
+// "ADD" api definition
 app.get('/add/:desc&:date&:time&:duration',function(req,res){
   var query = "insert into events (descrizione,date,time,durata) values ('";
   query += req.params.desc+"','"+req.params.date+"','"+req.params.time
@@ -45,12 +51,12 @@ app.get('/add/:desc&:date&:time&:duration',function(req,res){
   });
 });
 
-// DELETE api
+// "DELETE" api definition
 app.get('/delete/:id',function(req,res){
   var query = "delete from events where id = "+req.params.id+";";
   connection.query(query, function(err,rows){
-    console.log(err);
     if(err){
+      console.log(err);
       res.status(400).json(err);
     } else {
       res.status(200).json(rows);
@@ -58,5 +64,6 @@ app.get('/delete/:id',function(req,res){
   });
 });
 
-app.listen(port);
-console.log('Calendar started on port ' + port);
+// Start the service
+app.listen(settings.port);
+console.log('Calendar started on port ' + settings.port);
