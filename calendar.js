@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Load modules
 var express = require('express');
 var fs = require('fs');
@@ -28,7 +29,7 @@ var connection = mysql.createConnection({
   password : settings.mysqlPassword
 });
 connection.connect();
-connection.query('use CALENDAR;');
+connection.query('use calendar;');
 
 // Define logger middleware for all requests
 app.use(function (req, res, next) {
@@ -60,6 +61,19 @@ app.get('/add/:desc&:date&:time&:duration',function(req,res){
 // "DELETE" api definition
 app.get('/delete/:id',function(req,res){
   var query = "delete from events where id = "+req.params.id+";";
+  execute(query,res);
+});
+
+// "DAY" api definition
+app.get('/day/:date',function(req,res){
+  var query = 'select * from events where date = "'+req.params.date+'";'
+  execute(query,res);
+});
+
+// "CHECKTIMESPAN" api definition
+
+app.get('/timespan/:date1&:date2',function(req,res){
+  var query = 'select * from events where date <= "'+req.params.date2+'" and date >= "'+req.params.date1+'";'; 
   execute(query,res);
 });
 
