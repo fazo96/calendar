@@ -6,25 +6,26 @@ Calendar is a RESTful web service that relies on a MySQL database to offer event
 
 Calendar uses a database named CALENDAR and a table named EVENTS.
 
-## Protocollo
+## Protocol specification
 
-Uses JSON for data and offers a RESTful API.
+Uses JSON for data and offers a RESTful API. In every request and response, `Content-Type` must be `application/json`
 
 API endpoints:
 
-- __GET /__ returns all events stored
-- __GET /<day>__ returns all events in a day
-- __GET /<day1>/<day2>__ returns all events in a timespan (doesn't work at the moment)
-- __POST /__ inserts a new event in the database
-- __DELETE /<id>__ deletes an event
+- `GET /` returns an array with all events stored
+- `GET /<day>` returns an array with all events in a day
+- `GET /<day1>/<day2>` returns an array with all events in a timespan
+- `POST /` inserts a new event in the database
+- `DELETE /<id>` deletes an event
 
 ### Event data format
 
+Example of an event:
 ```json
 {
-  "desc": "description_of_the_event",
-  "startDate": "when the event starts('2015-12-01 18:00:00' for example)",
-  "endDate": "when the event ends"
+  "desc": "Meeting in Room #3",
+  "startDate": "2015-12-30 18:00:00",
+  "endDate": "2015-12-30 20:00:00"
 }
 ```
 
@@ -35,13 +36,19 @@ API endpoints:
 - tune the `settings.json` file as needed to make sure the service can connect to your MySQL database
 - run the service by launching `node calendar.js`.
 
-## Impostazioni
+### Settings
 
 Using `settings.json` you can customize the following:
 
 - MySQL connection settings
 - listening port for the service
 
-## Implementazione
+## Implementation
 
 Node.js + MySQL
+
+Node dependencies:
+
+- `express` for handling http requests
+- `body-parser` for parsing json in requests automatically with an 
+- `mysql` for querying the database
