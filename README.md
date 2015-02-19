@@ -1,64 +1,47 @@
-# Documentazione Servizio Web Calendario
+# Calendar Web Service Docs
 
-- Il software si controlla tramite richieste HTTP
-- utilizza un database MySQL
+Calendar is a RESTful web service that relies on a MySQL database to offer event management queries in a RESTful environment.
 
 ## Database
 
-Tabelle:
-
-- Eventi
-- Regole?
+Calendar uses a database named CALENDAR and a table named EVENTS.
 
 ## Protocollo
 
-- Risponde usando JSON per i dati
+Uses JSON for data and offers a RESTful API.
 
-Operazioni
+API endpoints:
 
-- elenco eventi in una giornata
-- momento occupato?
-- periodo occupato?
-- inserisci
-- elimina
+- __GET /__ returns all events stored
+- __GET /<day>__ returns all events in a day
+- __GET /<day1>/<day2>__ returns all events in a timespan (doesn't work at the moment)
+- __POST /__ inserts a new event in the database
+- __DELETE /<id>__ deletes an event
 
-## Utilizzo
+### Event data format
 
-- assicurarsi di avere `node.js` installato sulla macchina
-- aprire una shell nella directory del progetto e lanciare `npm install` per installare le dipendenze
-- assicurarsi di aver configurato correttamente le impostazioni del software tramite il file `settings.json` come documentato nella sezione "Impostazioni" di questo documento
-- avviare il software lanciando `node calendar.js`.
+```json
+{
+  "desc": "description_of_the_event",
+  "startDate": "when the event starts('2015-12-01 18:00:00' for example)",
+  "endDate": "when the event ends"
+}
+```
+
+## Usage
+
+- make sure you have `node.js` installed
+- open a shell in the project directory and run `npm install` to install dependencies
+- tune the `settings.json` file as needed to make sure the service can connect to your MySQL database
+- run the service by launching `node calendar.js`.
 
 ## Impostazioni
 
-Tramite il file `settings.json` è possibile personalizzare il funzionamento del software, tra cui:
+Using `settings.json` you can customize the following:
 
-- nome utente, hostname/IP, porta e password per la connessione al dbms SQL
-- porta di ascolto per le richieste HTTP
-
-## API
-
-Definizione specifica delle API:
-
-### Add
-
-Aggiunge un evento alla lista di eventi globale
-
-URL: /add/desc&date&time&duration
-
-- desc (stringa): descrizione dell'evento
-- date (data): data nel formato 2015-01-05, 2015-12-29 (anno-mese-giorno)
-- time (orario): orario nel formato 09:05:00 (ore:minuti:secondi)
-- duration (intero): durata in ore
-
-Esempio: "[service-url]/add/evento di test&2015-01-20&08:00:00&2"
+- MySQL connection settings
+- listening port for the service
 
 ## Implementazione
 
 Node.js + MySQL
-
-## Sviluppo
-
-Il progetto ha delle dipendenze su pacchetti disponibile nel registro di npm (node package manager). Npm è incluso insieme alla distribuzione di node.
-
-Per poter eseguire il software, aprire una shell nella directory del progetto e lanciare il comando `npm install`: npm leggerà le informazioni contenute in `package.json` e installerà le dipendenze necessarie automaticamente.

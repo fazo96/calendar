@@ -4,9 +4,21 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var mysql = require('mysql');
+
 // Initialization
 var app = express();
 app.use(bodyParser.json())
+app.use(function (req, res, next) {
+  // Log all requests
+  console.log('Request from '+req.ip+' URL:'+req.originalUrl+' at time:', Date.now());
+  next();
+});
+app.use(function(req,res,next){
+  console.log(req.url)
+  req.url = req.url.replace("%20"," ")
+  console.log(req.url);
+  next();
+});
 
 // Default Settings
 var settings = {
@@ -33,12 +45,6 @@ var connection = mysql.createConnection({
 connection.connect();
 connection.query('use calendar;');
 
-// Define logger middleware for all requests
-app.use(function (req, res, next) {
-  console.log('Request from '+req.ip+' URL:'+req.originalUrl+' at time:', Date.now());
-  next();
-});
-
 // Define query abstraction
 function execute(query,res){
   console.log("Attempting query: "+query);
@@ -54,9 +60,8 @@ function execute(query,res){
 
 // "ADD EVENT" api definition
 app.post('/',function(req,res){
-  var query = "insert into events (descrizione,date,time,durata) values ('";
-  query += req.body.desc+"','"+req.body.date+"','"+req.body.time
-  query += "',"+req.body.duration+");"
+  var query = "insert into events (descrizione,startDate,endDate) values ('";
+  query += req.body.desc+"','"+req.body.startDate+"','"+req.body.endDate+"');"
   execute(query,res);
 });
 
@@ -68,13 +73,17 @@ app.delete('/:id',function(req,res){
 
 // "GET DAY" api definition
 app.get('/:date',function(req,res){
-  var query = 'select * from events where date = "'+req.params.date+'";'
+  var query = 'select * from events where startDate <= "'+req.params.date+'" and endDate >= "'+req.params.date+'";'
   execute(query,res);
+});
+
+app.get('/',function(req,res){
+  execute("select * from events;",res);
 });
 
 // "GET TIMESPAN" api definition
 app.get('/:date1/:date2',function(req,res){
-  var query = 'select * from events where date <= "'+req.params.date2+'" and date >= "'+req.params.date1+'";'; 
+  var query = 'select * from events where ((startDate <= "'+req.params.date2+'" and startDate >= "'+req.params.date1+'") or (endDate >= "'+req.params.date1+'" and endDate <= "'+req.params.date2+'") or (startDate <= "'+req.params.date1+'" and endDate >= "'+req.params.date2+'"));'; 
   execute(query,res);
 });
 
