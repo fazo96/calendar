@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 // Load modules
 var express = require('express');
+var bodyParser = require('body-parser');
 var fs = require('fs');
 var mysql = require('mysql');
 // Initialization
 var app = express();
+app.use(bodyParser.json())
 
 // Default Settings
 var settings = {
@@ -50,29 +52,28 @@ function execute(query,res){
   });
 }
 
-// "ADD" api definition
-app.get('/add/:desc&:date&:time&:duration',function(req,res){
+// "ADD EVENT" api definition
+app.post('/',function(req,res){
   var query = "insert into events (descrizione,date,time,durata) values ('";
-  query += req.params.desc+"','"+req.params.date+"','"+req.params.time
-  query += "',"+req.params.duration+");"
+  query += req.body.desc+"','"+req.body.date+"','"+req.body.time
+  query += "',"+req.body.duration+");"
   execute(query,res);
 });
 
-// "DELETE" api definition
-app.get('/delete/:id',function(req,res){
+// "DELETE EVENT" api definition
+app.delete('/:id',function(req,res){
   var query = "delete from events where id = "+req.params.id+";";
   execute(query,res);
 });
 
-// "DAY" api definition
-app.get('/day/:date',function(req,res){
+// "GET DAY" api definition
+app.get('/:date',function(req,res){
   var query = 'select * from events where date = "'+req.params.date+'";'
   execute(query,res);
 });
 
-// "CHECKTIMESPAN" api definition
-
-app.get('/timespan/:date1&:date2',function(req,res){
+// "GET TIMESPAN" api definition
+app.get('/:date1/:date2',function(req,res){
   var query = 'select * from events where date <= "'+req.params.date2+'" and date >= "'+req.params.date1+'";'; 
   execute(query,res);
 });
