@@ -73,7 +73,7 @@ app.delete('/:id',function(req,res){
 
 // "GET DAY" api definition
 app.get('/:date',function(req,res){
-  var query = "select * from events where startDate <= '"+req.params.date+"' and endDate >= '"+req.params.date+"';"
+  var query = "select * from events where ((startDate between '"+req.params.date+" 00:00:00.000' and '"+req.params.date+" 23.59.59.000') or startDate < '"+req.params.date+"') and (endDate > '"+req.params.date+"' or (endDate between '"+req.params.date+" 00:00:00.000' and '"+req.params.date+" 23.59.59.000'));"
   execute(query,res);
 });
 
