@@ -20,6 +20,12 @@ app.use(function(req,res,next){
   next();
 });
 
+// Prevent SQL Injection
+app.use(function(req,res,next){
+  req.url = req.url.replace("'","").replace('"',"").replace(';',"");
+  next();
+});
+
 // Default Settings
 var settings = {
   port: 3000,
