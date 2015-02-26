@@ -13,10 +13,10 @@ app.use(function (req, res, next) {
   console.log('Request from '+req.ip+' URL:'+req.originalUrl+' at time:', Date.now());
   next();
 });
+
+// Fix request URLs
 app.use(function(req,res,next){
-  console.log(req.url)
   req.url = req.url.replace("%20"," ")
-  console.log(req.url);
   next();
 });
 
@@ -46,14 +46,14 @@ connection.connect();
 connection.query('use calendar;');
 
 // Define query abstraction
-function execute(query,res){
+function execute(query,res,code){
   console.log("Attempting query: "+query);
   connection.query(query, function(err,rows){
     if(err){
       console.log("Query " + err);
       res.status(400).json(err);
     } else {
-      res.status(200).json(rows);
+      res.status(code || 200).json(rows);
     }
   });
 }
@@ -73,7 +73,7 @@ app.delete('/:id',function(req,res){
 
 // "GET DAY" api definition
 app.get('/:date',function(req,res){
-  var query = 'select * from events where startDate <= "'+req.params.date+'" and endDate >= "'+req.params.date+'";'
+  var query = "select * from events where startDate <= '"+req.params.date+"' and endDate >= '"+req.params.date+"';"
   execute(query,res);
 });
 
