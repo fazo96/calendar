@@ -13,10 +13,12 @@ Uses JSON for data and offers a RESTful API. In every request and response, `Con
 API endpoints:
 
 - `GET /` returns an array with all events stored
-- `GET /<day>` returns an array with all events in a day
-    - in this endpoint the API uses a DATE SQL object so time doesn't have to be specified
+- `GET /<id>` returns the event with the given id
+- `GET /day/<day>` returns an array with all events in a day
+    - in this URL the API uses a DATE SQL object so time doesn't have to be specified
 - `GET /<day1>/<day2>` returns an array with all events in a timespan
-    - in this endpoint the API uses a DATETIME SQL object so the time must be specified and not only the date
+    - in this URL the API uses a DATETIME SQL object so the time must be specified and not only the date
+- `DELETE /day/<day>` and `DELETE /<day1>/<day2>` are self explanatory
 - `POST /` inserts a new event in the database
 - `DELETE /<id>` deletes an event
 

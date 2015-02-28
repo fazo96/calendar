@@ -71,26 +71,46 @@ app.post('/',function(req,res){
   execute(query,res);
 });
 
-// "DELETE EVENT" api definition
+// "DAY" api definition
+function dayQuery(date){
+ return " from events where ((startDate between '"+date+" 00:00:00.000' and '"+date+" 23.59.59.000') or startDate < '"+date+"') and (endDate > '"+date+"' or (endDate between '"+date+" 00:00:00.000' and '"+date+" 23.59.59.000'));";
+};
+
+app.get('/day/:date',function(req,res){
+  execute("select *" + dayQuery(req.params.date),res);
+});
+
+app.delete('/day/:date',function(req,res){
+  execute("delete" + dayQuery(req.params.date),res);
+});
+
+// "ID" api definition
 app.delete('/:id',function(req,res){
   var query = "delete from events where id = "+req.params.id+";";
   execute(query,res);
 });
 
-// "GET DAY" api definition
-app.get('/:date',function(req,res){
-  var query = "select * from events where ((startDate between '"+req.params.date+" 00:00:00.000' and '"+req.params.date+" 23.59.59.000') or startDate < '"+req.params.date+"') and (endDate > '"+req.params.date+"' or (endDate between '"+req.params.date+" 00:00:00.000' and '"+req.params.date+" 23.59.59.000'));"
+app.get('/:id',function(req,res){
+  var query = "select from events where id = "+req.params.id+";";
   execute(query,res);
 });
 
+// "GET ALL" api definition
 app.get('/',function(req,res){
   execute("select * from events;",res);
 });
 
-// "GET TIMESPAN" api definition
+// "TIMESPAN" api definition
+function timespanQuery(date1,date2){
+  return ' from events where ((startDate <= "'+date2+'" and startDate >= "'+date1+'") or (endDate >= "'+date1+'" and endDate <= "'+date2+'") or (startDate <= "'+date1+'" and endDate >= "'+date2+'"));';
+};
+
 app.get('/:date1/:date2',function(req,res){
-  var query = 'select * from events where ((startDate <= "'+req.params.date2+'" and startDate >= "'+req.params.date1+'") or (endDate >= "'+req.params.date1+'" and endDate <= "'+req.params.date2+'") or (startDate <= "'+req.params.date1+'" and endDate >= "'+req.params.date2+'"));'; 
-  execute(query,res);
+  execute("select *" + timespanQuery(req.params.date1,req.params.date2),res);
+});
+
+app.delete('/:date1/:date2',function(req,res){
+  execute("delete" + timespanQuery(req.params.date1,req.params.date2),res);
 });
 
 // Start the service
