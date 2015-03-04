@@ -4,13 +4,14 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var mysql = require('mysql');
+var chalk = require('chalk');
 
 // Initialization
 var app = express();
 app.use(bodyParser.json())
 app.use(function (req, res, next) {
   // Log all requests
-  console.log('Request from '+req.ip+' URL:'+req.originalUrl+' at time:', Date.now());
+  console.log(chalk.underline.cyan('\nRequest') + chalk.bold(' from ') + chalk.underline(req.ip) + chalk.bold('\n\tMethod: ') + chalk.underline(req.method) + chalk.bold('\n\tURL: ') + chalk.underline(req.originalUrl) + chalk.bold('\n\tTime ') + chalk.underline(Date()));
   next();
 });
 
@@ -33,13 +34,15 @@ var settings = {
   mysqlUser: 'root'
 }
 // Try to read settings from file
-console.log("Reading settings...");
+console.log(chalk.yellow("Reading settings..."))
 try {
-  var settingsFile = fs.readFileSync('./settings.json').toString();
-  settings = JSON.parse(settingsFile);
-  console.log("Using settings from settings.json");
+  var settingsFilePath = './settings.json'
+  var settingsFile = fs.readFileSync(settingsFilePath).toString()
+  settings = JSON.parse(settingsFile)
+  console.log(chalk.green("Using settings from " + chalk.bold(settingsFilePath)))
 } catch (e) {
-  console.log("Failed reading settings.json file! Using defaults")
+  console.log(chalk.red("Failed reading settings.json file!") + " " + chalk.green("Using defaults"))
+  console.log(chalk.green.bold("Default settings (in use): ") + chalk.bold(JSON.stringify(settings)))
 }
 
 // Create sql connection
@@ -48,18 +51,24 @@ var connection = mysql.createConnection({
   user     : settings.mysqlUser,
   password : settings.mysqlPassword
 });
-connection.connect();
+connection.connect(function(err){
+  if(err){
+    console.log(chalk.red("Failed to connect to SQL Database: ") + chalk.bold(err));
+    process.exit(-1)
+  }
+})
 connection.query('use calendar;');
 
 // Define query abstraction
 function execute(query,res,code){
-  console.log("Attempting query: "+query);
+  console.log(chalk.green('Querying: ') + chalk.inverse(query))
   connection.query(query, function(err,rows){
     if(err){
-      console.log("Query " + err);
       res.status(400).json(err);
+      console.log(chalk.red('Replying: ') + chalk.underline(400) + chalk.red(' With Error: ') + chalk.inverse(err))
     } else {
       res.status(code || 200).json(rows);
+      console.log(chalk.green('Replying: ') + chalk.underline(code || 200) + chalk.green(' With Data: ') + chalk.bold(JSON.stringify(rows)))
     }
   });
 }
@@ -91,7 +100,7 @@ app.delete('/:id',function(req,res){
 });
 
 app.get('/:id',function(req,res){
-  var query = "select from events where id = "+req.params.id+";";
+  var query = "select * from events where id = "+req.params.id+";";
   execute(query,res);
 });
 
@@ -113,6 +122,11 @@ app.delete('/:date1/:date2',function(req,res){
   execute("delete" + timespanQuery(req.params.date1,req.params.date2),res);
 });
 
+app.use(function(req,res,next){
+  console.log(chalk.green('wReplying: ') + chalk.underline(res.code) + chalk.green(' With Data: ') + chalk.bold(JSON.stringify(res.body)))
+  next()
+});
+
 // Start the service
 app.listen(settings.port);
-console.log('Calendar started on port ' + settings.port);
+console.log(chalk.green('Calendar started on port ' + chalk.bold.underline(settings.port)));
