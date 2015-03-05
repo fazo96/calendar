@@ -6,8 +6,44 @@ var fs = require('fs');
 var mysql = require('mysql');
 var chalk = require('chalk');
 
+// Default Settings
+var settings = {
+  port: 3000,
+  mysqlHost: 'localhost',
+  mysqlUser: 'root'
+}
+
+function readSettings(settingsFilePath){
+  var settingsFile = fs.readFileSync(settingsFilePath).toString()
+  sets = JSON.parse(settingsFile)
+  console.log(chalk.green("Loading settings from " + chalk.bold(settingsFilePath)))
+  settings = sets
+  return settings
+}
+
+// Try to read settings from file
+console.log(chalk.yellow("Reading settings..."))
+try {
+  readSettings('./settings.json')
+} catch (e) {
+  console.log(chalk.red("Failed reading settings.json file!") + " " + chalk.green("Using defaults"))
+  console.log(chalk.green.bold("Default settings (in use): ") + chalk.bold(JSON.stringify(settings)))
+}
+
 // Initialization
-var app = express();
+console.log(chalk.green(chalk.bold("PID: ") + process.pid))
+var app, secondaryApp;
+if(settings.httpsKey && settings.httpsCertificate) {
+  // Use HTTPS
+  console.log(chalk.green.bold("Using HTTPs"))
+  app = express.createServer({ key: settings.httpsKey, cert: settings.httpsCertificate })
+  secondaryApp = express();
+  secondaryApp.all('*', function(req,res){
+    res.redirect("https://"+req.headers.host+req.headers.url);
+  });
+} else {
+  app = express();
+}
 app.use(bodyParser.json())
 app.use(function (req, res, next) {
   // Log all requests
@@ -26,24 +62,6 @@ app.use(function(req,res,next){
   req.url = req.url.replace("'","").replace('"',"").replace(';',"");
   next();
 });
-
-// Default Settings
-var settings = {
-  port: 3000,
-  mysqlHost: 'localhost',
-  mysqlUser: 'root'
-}
-// Try to read settings from file
-console.log(chalk.yellow("Reading settings..."))
-try {
-  var settingsFilePath = './settings.json'
-  var settingsFile = fs.readFileSync(settingsFilePath).toString()
-  settings = JSON.parse(settingsFile)
-  console.log(chalk.green("Using settings from " + chalk.bold(settingsFilePath)))
-} catch (e) {
-  console.log(chalk.red("Failed reading settings.json file!") + " " + chalk.green("Using defaults"))
-  console.log(chalk.green.bold("Default settings (in use): ") + chalk.bold(JSON.stringify(settings)))
-}
 
 // Create sql connection
 var connection = mysql.createConnection({
@@ -129,4 +147,8 @@ app.use(function(req,res,next){
 
 // Start the service
 app.listen(settings.port);
+if(secondaryApp && settings.port != 80){
+  secondaryApp.listen(80);
+  console.log(chalk.green('Calendar redirect app started on port ' + chalk.bold.underline(settings.port)));
+}
 console.log(chalk.green('Calendar started on port ' + chalk.bold.underline(settings.port)));
