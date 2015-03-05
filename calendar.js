@@ -5,10 +5,20 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var mysql = require('mysql');
 var chalk = require('chalk');
+var cli = require('commander')
+
+cli
+  .version('0.2')
+  .usage('[options]')
+  .option('-p, --port <port>', 'the port of the main server', parseInt)
+  .option('-s, --settings <file>', 'the file used to read settings')
+  .option('-f, --forcehttps', 'force usage of https (only possible if using https)')
+  .option('-i, --init', 'create required database and tables')
+  .parse(process.argv)
 
 // Default Settings
 var settings = {
-  port: 3000,
+  port: cli.port || 3000,
   mysqlHost: 'localhost',
   mysqlUser: 'root'
 }
@@ -18,20 +28,23 @@ function readSettings(settingsFilePath){
   sets = JSON.parse(settingsFile)
   console.log(chalk.green("Loading settings from " + chalk.bold(settingsFilePath)))
   settings = sets
+  settings.port = cli.port || settings.port || 3000
+  settings.forcehttps = cli.forcehttps || settings.forcehttps || true
   return settings
 }
 
 // Try to read settings from file
 console.log(chalk.yellow("Reading settings..."))
 try {
-  readSettings('./settings.json')
+  readSettings(cli.settings || './settings.json')
 } catch (e) {
-  console.log(chalk.red("Failed reading settings.json file!") + " " + chalk.green("Using defaults"))
+  console.log(chalk.red("Failed reading '"+(cli.settings || './settings.json')+"'!") + " " + chalk.green("Using defaults"))
   console.log(chalk.green.bold("Default settings (in use): ") + chalk.bold(JSON.stringify(settings)))
 }
 
 // Initialization
 console.log(chalk.green(chalk.bold("PID: ") + process.pid))
+var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, descrizione char(50) not null, startDate DATETIME not null, endDate DATETIME not null);'
 var app, secondaryApp;
 if(settings.httpsKey && settings.httpsCertificate) {
   // Use HTTPS
@@ -75,6 +88,10 @@ connection.connect(function(err){
     process.exit(-1)
   }
 })
+if(cli.init){
+  console.log(chalk.yellow("Launching init SQL script: ")+chalk.inverse(initSql))
+  connection.query(initSql)
+}
 connection.query('use calendar;');
 
 // Define query abstraction
@@ -147,8 +164,8 @@ app.use(function(req,res,next){
 
 // Start the service
 app.listen(settings.port);
-if(secondaryApp && settings.port != 80){
+if(secondaryApp && settings.forcehttps && settings.port != 80){
   secondaryApp.listen(80);
-  console.log(chalk.green('Calendar redirect app started on port ' + chalk.bold.underline(settings.port)));
+  console.log(chalk.green('Calendar redirect app started on port ' + chalk.bold.underline(80)));
 }
 console.log(chalk.green('Calendar started on port ' + chalk.bold.underline(settings.port)));
