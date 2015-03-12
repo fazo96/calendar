@@ -12,23 +12,23 @@ Uses JSON for data and offers a RESTful API. In every request and response, `Con
 
 API endpoints:
 
-- `GET /` returns an array with all events stored
-- `GET /<id>` returns the event with the given id
-- `GET /day/<day>` returns an array with all events in a day
+- `GET events` returns an array with all events stored
+- `GET events/<id>` returns the event with the given id
+- `GET events/day/<day>` returns an array with all events in a day
     - in this URL the API uses a DATE SQL object so time doesn't have to be specified
-- `GET /<day1>/<day2>` returns an array with all events in a timespan
+- `GET events/<day1>/<day2>` returns an array with all events in a timespan
     - in this URL the API uses a DATETIME SQL object so the time must be specified and not only the date
-- `DELETE /day/<day>` and `DELETE /<day1>/<day2>` are self explanatory
-- `POST /` inserts a new event in the database
-- `DELETE /<id>` deletes an event
+- `DELETE events/day/<day>` and `DELETE /<day1>/<day2>` are self explanatory
+- `POST events` inserts a new event in the database
+- `DELETE events/<id>` deletes an event
 
 ### Examples
 
-- `http GET calendar.url` returns a list of all events
-- `http GET calendar.url/2015-03-28` returns a list of events that happen on the given day
-- `http GET calendar.url/2015-03-28 09:00:00/2015-04-10 21:00:00` returns a list of events that overlap the given timespan
-- `http POST calendar.url desc="Description of the event" startDate="2015-04-20 09:00:00" endDate="2015-04-20 11:00:00"` creates an event
-- `http DELETE calendar.url/13` deletes the event with the `id` being 13
+- `http GET calendar.url/events` returns a list of all events
+- `http GET calendar.url/events/2015-03-28` returns a list of events that happen on the given day
+- `http GET calendar.url/events/2015-03-28 09:00:00/2015-04-10 21:00:00` returns a list of events that overlap the given timespan
+- `http POST calendar.url/events description="Description of the event" startDate="2015-04-20 09:00:00" endDate="2015-04-20 11:00:00"` creates an event
+- `http DELETE calendar.url/events/13` deletes the event with the `id` being 13
 
 ### Event data format
 
@@ -36,7 +36,7 @@ Example of an event:
 ```json
 {
   "id": 1,
-  "desc": "Meeting in Room #3",
+  "description": "Meeting in Room #3",
   "startDate": "2015-12-30 18:00:00",
   "endDate": "2015-12-30 20:00:00"
 }
@@ -47,6 +47,7 @@ Example of an event:
 - make sure you have `node.js` installed
 - open a shell in the project directory and run `npm install` to install dependencies
 - tune the `settings.json` file as needed to make sure the service can connect to your MySQL database
+- if you want to run the HTML GUI then you will need to go to the `/gui` folder and run `bower install` to install client-side libraries. If you don't have `bower`, you can install it globally with `npm install -g bower`. More information is available on [bower.io](http://bower.io)
 - run the service by launching `node calendar.js`.
 
 ### Settings
@@ -55,6 +56,7 @@ Using `settings.json` you can customize the following:
 
 - MySQL connection settings
 - listening port for the service
+- enabling or disabling the built-in html gui
 
 __Example:__
 
@@ -63,19 +65,23 @@ __Example:__
   "port": "3000",
   "mysqlUser": "yourSqlUser",
   "mysqlHost": "192.168.0.100",
-  "mysqlPassword": "yoursecretsqlpassword"
+  "mysqlPassword": "yoursecretsqlpassword",
+  "enableGUI": true
 }
 ```
 
 ## Implementation
 
-Node.js + MySQL
+Node.js + MySQL + Bower (on the client)
 
 Node dependencies:
 
 - `express` for handling http requests
 - `body-parser` for parsing json in requests using an express middleware
 - `mysql` for querying the database
+
+Bower dependencies (to be installed in `/gui`):
+- `bootstrap-calendar`
 
 ## Credits
 

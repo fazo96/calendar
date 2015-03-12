@@ -44,7 +44,7 @@ try {
 
 // Initialization
 console.log(chalk.green(chalk.bold("PID: ") + process.pid))
-var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, descrizione char(50) not null, startDate DATETIME not null, endDate DATETIME not null);'
+var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, description char(50) not null, startDate DATETIME not null, endDate DATETIME not null);'
 var app, secondaryApp;
 if(settings.httpsKey && settings.httpsCertificate) {
   // Use HTTPS
@@ -63,6 +63,12 @@ app.use(function (req, res, next) {
   console.log(chalk.underline.cyan('\nRequest') + chalk.bold(' from ') + chalk.underline(req.ip) + chalk.bold('\n\tMethod: ') + chalk.underline(req.method) + chalk.bold('\n\tURL: ') + chalk.underline(req.originalUrl) + chalk.bold('\n\tTime ') + chalk.underline(Date()));
   next();
 });
+
+// Serve static files
+if(settings.enableGUI){
+  app.use(express.static("gui"))
+  console.log(chalk.green("Enabled "+chalk.bold("HTML GUI")))
+}
 
 // Fix request URLs
 app.use(function(req,res,next){
@@ -109,7 +115,7 @@ function execute(query,res,code){
 }
 
 // "ADD EVENT" api definition
-app.post('/',function(req,res){
+app.post('/events',function(req,res){
   var query = "insert into events (descrizione,startDate,endDate) values ('";
   query += req.body.desc+"','"+req.body.startDate+"','"+req.body.endDate+"');"
   execute(query,res);
@@ -120,27 +126,27 @@ function dayQuery(date){
  return " from events where ((startDate between '"+date+" 00:00:00.000' and '"+date+" 23.59.59.000') or startDate < '"+date+"') and (endDate > '"+date+"' or (endDate between '"+date+" 00:00:00.000' and '"+date+" 23.59.59.000'));";
 };
 
-app.get('/day/:date',function(req,res){
+app.get('/events/day/:date',function(req,res){
   execute("select *" + dayQuery(req.params.date),res);
 });
 
-app.delete('/day/:date',function(req,res){
+app.delete('/events/day/:date',function(req,res){
   execute("delete" + dayQuery(req.params.date),res);
 });
 
 // "ID" api definition
-app.delete('/:id',function(req,res){
+app.delete('/events/:id',function(req,res){
   var query = "delete from events where id = "+req.params.id+";";
   execute(query,res);
 });
 
-app.get('/:id',function(req,res){
+app.get('/events/:id',function(req,res){
   var query = "select * from events where id = "+req.params.id+";";
   execute(query,res);
 });
 
 // "GET ALL" api definition
-app.get('/',function(req,res){
+app.get('/events',function(req,res){
   execute("select * from events;",res);
 });
 
@@ -149,11 +155,11 @@ function timespanQuery(date1,date2){
   return ' from events where ((startDate <= "'+date2+'" and startDate >= "'+date1+'") or (endDate >= "'+date1+'" and endDate <= "'+date2+'") or (startDate <= "'+date1+'" and endDate >= "'+date2+'"));';
 };
 
-app.get('/:date1/:date2',function(req,res){
+app.get('/events/:date1/:date2',function(req,res){
   execute("select *" + timespanQuery(req.params.date1,req.params.date2),res);
 });
 
-app.delete('/:date1/:date2',function(req,res){
+app.delete('/events/:date1/:date2',function(req,res){
   execute("delete" + timespanQuery(req.params.date1,req.params.date2),res);
 });
 

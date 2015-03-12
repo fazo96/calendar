@@ -2,5 +2,6 @@
   "port": "3000",
   "mysqlUser": "root",
   "mysqlHost": "localhost",
-  "mysqlPassword": "ciao"
+  "mysqlPassword": "ciao",
+  "enableGUI": true"
 }
