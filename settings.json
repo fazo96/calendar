@@ -3,5 +3,5 @@
   "mysqlUser": "root",
   "mysqlHost": "localhost",
   "mysqlPassword": "ciao",
-  "enableGUI": true"
+  "enableGUI": true
 }

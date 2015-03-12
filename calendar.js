@@ -94,11 +94,12 @@ connection.connect(function(err){
     process.exit(-1)
   }
 })
+
+// Initialize Database if needed
 if(cli.init){
-  console.log(chalk.yellow("Launching init SQL script: ")+chalk.inverse(initSql))
-  connection.query(initSql)
-}
-connection.query('use calendar;');
+  console.log(chalk.yellow("Launching init SQL script: ")+chalk.inverse(initSql.replace('\n','')))
+  initSql.split('\n').forEach(function(i){ connection.query(i) })
+} else connection.query('use calendar;');
 
 // Define query abstraction
 function execute(query,res,code){
