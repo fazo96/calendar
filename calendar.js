@@ -117,8 +117,8 @@ function execute(query,res,code){
 
 // "ADD EVENT" api definition
 app.post('/events',function(req,res){
-  var query = "insert into events (descrizione,startDate,endDate) values ('";
-  query += req.body.desc+"','"+req.body.startDate+"','"+req.body.endDate+"');"
+  var query = "insert into events (description,startDate,endDate) values ('";
+  query += req.body.description+"','"+req.body.startDate+"','"+req.body.endDate+"');"
   execute(query,res);
 });
 
@@ -165,7 +165,7 @@ app.delete('/events/:date1/:date2',function(req,res){
 });
 
 app.use(function(req,res,next){
-  console.log(chalk.green('wReplying: ') + chalk.underline(res.code) + chalk.green(' With Data: ') + chalk.bold(JSON.stringify(res.body)))
+  console.log(chalk.green('Replying: ') + chalk.underline(res.code) + chalk.green(' With Data: ') + chalk.bold(JSON.stringify(res.body)))
   next()
 });
 

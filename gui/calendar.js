@@ -2,7 +2,8 @@ function fromAPItoGUI(list){
   console.log(list)
   var ret = []
   list.forEach(function(item){
-    var i = { id: item.id, title: item.descrizione }
+    console.log(item)
+    var i = { id: item.id, title: item.description }
     i.start = moment(item.startDate).valueOf()
     i.end = moment(item.endDate).valueOf()
     console.log(moment(i.start).format())
