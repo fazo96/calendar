@@ -27,7 +27,7 @@ API endpoints:
 - `http GET calendar.url/events` returns a list of all events
 - `http GET calendar.url/events/2015-03-28` returns a list of events that happen on the given day
 - `http GET calendar.url/events/2015-03-28 09:00:00/2015-04-10 21:00:00` returns a list of events that overlap the given timespan
-- `http POST calendar.url/events description="Description of the event" startDate="2015-04-20 09:00:00" endDate="2015-04-20 11:00:00"` creates an event
+- `http POST calendar.url/events { "description": "Description of the event", "startDate": "2015-04-20 09:00:00", "endDate": "2015-04-20 11:00:00" }` creates an event
 - `http DELETE calendar.url/events/13` deletes the event with the `id` being 13
 
 ### Event data format
@@ -36,7 +36,7 @@ Example of an event:
 ```json
 {
   "id": 1,
-  "description": "Meeting in Room #3",
+  "description": "Meeting",
   "startDate": "2015-12-30 18:00:00",
   "endDate": "2015-12-30 20:00:00"
 }
