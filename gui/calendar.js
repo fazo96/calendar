@@ -1,15 +1,11 @@
 function fromAPItoGUI(list){
-  console.log(list)
   var ret = []
   list.forEach(function(item){
-    console.log(item)
     var i = { id: item.id, title: item.description }
     i.start = moment(item.startDate).valueOf()
     i.end = moment(item.endDate).valueOf()
-    console.log(moment(i.start).format())
     ret.push(i)
   })
-  console.log(ret)
   return ret
 }
 
@@ -17,9 +13,16 @@ var calendar
 var ev = []
 $.get("events",function(items){
   ev = fromAPItoGUI(items);
-  $("#calendar").calendar({
-    tmpl_path: "/tmpls/",
+  calendar = $("#calendar").calendar({
+    tmpl_path: "bower_components/bootstrap-calendar/tmpls/",
     events_source: ev 
   })
-  console.log($("#calendar"))
 })
+
+$('#go-prev').click(function(){ calendar.navigate('prev') });
+$('#go-next').click(function(){ calendar.navigate('next') });
+$('#go-today').click(function(){ calendar.navigate('today') });
+$('#view-year').click(function(){ calendar.view('year') });
+$('#view-month').click(function(){ calendar.view('month') });
+$('#view-week').click(function(){ calendar.view('week') });
+$('#view-day').click(function(){ calendar.view('day') });
