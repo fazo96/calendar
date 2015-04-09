@@ -79,9 +79,11 @@ Node dependencies:
 - `express` for handling http requests
 - `body-parser` for parsing json in requests using an express middleware
 - `mysql` for querying the database
+- `chalk` for coloring the stdout
+- `commander` for command line argument parsing
 
 Bower dependencies (to be installed in `/gui`):
-- `bootstrap-calendar`
+- `bootstrap-calendar` for the calendar user interface
 
 ## Credits
 
