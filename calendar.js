@@ -7,6 +7,7 @@ var mysql = require('mysql');
 var chalk = require('chalk');
 var cli = require('commander')
 
+// Configuring command line options
 cli
   .version('0.2')
   .usage('[options]')
@@ -16,13 +17,14 @@ cli
   .option('-i, --init', 'create required database and tables')
   .parse(process.argv)
 
-// Default Settings
+// Configuring default Settings
 var settings = {
   port: cli.port || 3000,
   mysqlHost: 'localhost',
   mysqlUser: 'root'
 }
 
+// This function reads settings from a given file
 function readSettings(settingsFilePath){
   var settingsFile = fs.readFileSync(settingsFilePath).toString()
   sets = JSON.parse(settingsFile)
@@ -38,13 +40,20 @@ console.log(chalk.yellow("Reading settings..."))
 try {
   readSettings(cli.settings || './settings.json')
 } catch (e) {
+  // Use defaults
   console.log(chalk.red("Failed reading '"+(cli.settings || './settings.json')+"'!") + " " + chalk.green("Using defaults"))
   console.log(chalk.green.bold("Default settings (in use): ") + chalk.bold(JSON.stringify(settings)))
 }
 
 // Initialization
+
+// Print PID
 console.log(chalk.green(chalk.bold("PID: ") + process.pid))
+
+// Configure MySQL INIT script
 var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, description char(50) not null, startDate DATETIME not null, endDate DATETIME not null);'
+
+// Configure web server
 var app, secondaryApp;
 if(settings.httpsKey && settings.httpsCertificate) {
   // Use HTTPS
@@ -57,6 +66,8 @@ if(settings.httpsKey && settings.httpsCertificate) {
 } else {
   app = express();
 }
+
+// Configure Web server Middlewares
 app.use(bodyParser.json())
 app.use(function (req, res, next) {
   // Log all requests
@@ -98,13 +109,16 @@ connection.connect(function(err){
 // Initialize Database if needed
 if(cli.init){
   console.log(chalk.yellow("Launching init SQL script: ")+chalk.inverse(initSql.replace('\n','')))
+  // Run INIT queries
   initSql.split('\n').forEach(function(i){ connection.query(i) })
 } else connection.query('use calendar;');
 
-// Define query abstraction
+// This function executes a query and when it's done replies
+// to the HTTP request with the results 
 function execute(query,res,code){
   console.log(chalk.green('Querying: ') + chalk.inverse(query))
   connection.query(query, function(err,rows){
+    // Query finished
     if(err){
       res.status(400).json(err);
       console.log(chalk.red('Replying: ') + chalk.underline(400) + chalk.red(' With Error: ') + chalk.inverse(err))

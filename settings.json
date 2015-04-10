@@ -1,5 +1,5 @@
 {
-  "port": "3000",
+  "port": "5000",
   "mysqlUser": "root",
   "mysqlHost": "localhost",
   "mysqlPassword": "ciao",
