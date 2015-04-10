@@ -79,7 +79,7 @@ app.use(function (req, res, next) {
 if(settings.enableGUI){
   app.use(express.static("gui"))
   console.log(chalk.green("Enabled "+chalk.bold("HTML GUI")))
-}
+} else console.log(chalk.green("Disabled "+chalk.bold("HTML GUI")))
 
 // Fix request URLs
 app.use(function(req,res,next){
@@ -109,8 +109,15 @@ connection.connect(function(err){
 // Initialize Database if needed
 if(cli.init){
   console.log(chalk.yellow("Launching init SQL script: ")+chalk.inverse(initSql.replace('\n','')))
-  // Run INIT queries
-  initSql.split('\n').forEach(function(i){ connection.query(i) })
+    // Run INIT queries
+    initSql.split('\n').forEach(function(i){
+      connection.query(i,function(err,res){
+        if(err){
+          console.log(chalk.red("Failed to initialize database: ") + chalk.bold(err));
+          process.exit(-1)
+        }
+      })
+    })
 } else connection.query('use calendar;');
 
 // This function executes a query and when it's done replies
