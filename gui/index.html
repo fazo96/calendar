@@ -4,23 +4,21 @@
     <title>Calendar</title>
     <link rel="stylesheet" href="bower_components/bootstrap/docs/assets/css/bootstrap.css">
     <link rel="stylesheet" href="bower_components/bootstrap-calendar/css/calendar.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="container">
-      <h1>Calendar <small>demo</small></h1>
+    <div class="container" ng-app="calendar">
+      <h1>
+        <a href="/">Calendar</a> <small>demo</small>
+        <span class="pull-right navbar">
+          <a href="#/insert">
+            <i class="fa fa-plus"></i>
+          </a>
+        </span>
+      </h1>
       <hr>
-      <div class="btn-group">
-        <button class="btn btn-warning" id="view-year">Year</button>
-        <button class="btn btn-warning" id="view-month">Month</button>
-        <button class="btn btn-warning" id="view-week">Week</button>
-        <button class="btn btn-warning" id="view-day">Day</button>
-      </div>
-      <div class="pull-right btn-group">
-        <button class="btn btn-warning" id="go-prev">Back</button>
-        <button class="btn btn-warning" id="go-today">Today</button>
-        <button class="btn btn-warning" id="go-next">Next</button>
-      </div>
+      <div class="router" ng-view></div>
       <hr>
       <div id="calendar"></div>
     </div>
@@ -32,6 +30,8 @@
     <script type="text/javascript" src="bower_components/bootstrap-calendar/js/language/en-GB.js"></script>
     <script type="text/javascript" src="bower_components/bootstrap-calendar/js/calendar.js"></script>
     <script type="text/javascript" src="bower_components/moment/moment.js"></script>
-    <script type="text/javascript" src="calendar.js"></script>
+    <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="bower_components/angular-route/angular-route.js"></script>
+    <script type="text/javascript" src="app.js"></script>
 </body>
 </html>
