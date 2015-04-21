@@ -6,6 +6,10 @@ app.config(function($routeProvider){
     templateUrl: 'insert.html',
     controller: 'insertController'
   })
+  $routeProvider.when('/evt/:id', {
+    templateUrl: 'evt.html',
+    controller: 'evtController'
+  })
   $routeProvider.otherwise({
     templateUrl: 'calendar.html',
     controller: 'calendarController'
@@ -14,12 +18,13 @@ app.config(function($routeProvider){
 
 app.controller('calendarController', function($scope){
   // GET all the events
-  $.get("events",function(items){
+  $.get("/events",function(items){
     // Convert them to GUI format
     ev = items.map(function(item){
       return {
         id: item.id,
         title: item.description,
+        url: '#/evt/'+item.id,
         start: moment(item.startDate).valueOf(),
         end: moment(item.endDate).valueOf()
       }
@@ -58,4 +63,15 @@ app.controller('insertController', function($scope){
       data: JSON.stringify(obj)
     })
   }
+})
+
+app.controller('evtController', function($scope,$routeParams){
+  $scope.data = {}
+  $scope.loading = true
+  $.get('/events/'+$routeParams.id, function(data){
+    console.log(data[0])
+    $scope.data = data[0] 
+    $scope.loading = false
+    $scope.$apply()
+  })
 })
