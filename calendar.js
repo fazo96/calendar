@@ -68,12 +68,13 @@ if(settings.httpsKey && settings.httpsCertificate) {
 }
 
 // Configure Web server Middlewares
-app.use(bodyParser.json())
 app.use(function (req, res, next) {
   // Log all requests
-  console.log(chalk.underline.cyan('\nRequest') + chalk.bold(' from ') + chalk.underline(req.ip) + chalk.bold('\n\tMethod: ') + chalk.underline(req.method) + chalk.bold('\n\tURL: ') + chalk.underline(req.originalUrl) + chalk.bold('\n\tTime ') + chalk.underline(Date()));
+  console.log(chalk.underline.cyan('\nRequest') + chalk.bold(' from ') + chalk.underline(req.ip) + chalk.bold('\n\tMethod: ') + chalk.underline(req.method) + chalk.bold('\n\tURL: ') + chalk.underline(req.originalUrl) + chalk.bold('\n\tTime ') + chalk.underline(Date()) + chalk.bold('\n\tBody ') + chalk.underline(req.body));
   next();
 });
+
+app.use(bodyParser.json())
 
 // Serve static files
 if(settings.enableGUI){
