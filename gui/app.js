@@ -16,9 +16,9 @@ app.config(function($routeProvider){
   })
 })
 
-app.controller('calendarController', function($scope){
+app.controller('calendarController', function($scope,$http){
   // GET all the events
-  $.get("/events",function(items){
+  $http.get("/events").success(function(items){
     // Convert them to GUI format
     ev = items.map(function(item){
       return {
@@ -56,22 +56,15 @@ app.controller('insertController', function($scope){
     var ed = $('#end').data("DateTimePicker").date().format('YYYY-MM-DD hh:mm:ss')
     var obj = { description: $scope.desc, startDate: sd, endDate: ed }
     console.log(JSON.stringify(obj))
-    $.ajax({
-      url: '/events',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(obj)
+    $http.post('/events',JSON.stringify(obj)).success(function(){
+      console.log('posted')
     })
   }
 })
 
-app.controller('evtController', function($scope,$routeParams){
-  $scope.data = {}
-  $scope.loading = true
-  $.get('/events/'+$routeParams.id, function(data){
+app.controller('evtController', function($scope,$routeParams,$http){
+  $http.get('/events/'+$routeParams.id).success(function(data){
     console.log(data[0])
     $scope.data = data[0] 
-    $scope.loading = false
-    $scope.$apply()
   })
 })
