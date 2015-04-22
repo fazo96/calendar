@@ -14,6 +14,7 @@ API endpoints:
 
 - `GET events` returns an array with all events stored
 - `GET events/<id>` returns the event with the given id
+- `PUT events/<id>` modifies the event by replacing the given fields
 - `GET events/day/<day>` returns an array with all events in a day
     - in this URL the API uses a DATE SQL object so time doesn't have to be specified
 - `GET events/<day1>/<day2>` returns an array with all events in a timespan
@@ -28,6 +29,7 @@ API endpoints:
 - `http GET calendar.url/events/2015-03-28` returns a list of events that happen on the given day
 - `http GET calendar.url/events/2015-03-28 09:00:00/2015-04-10 21:00:00` returns a list of events that overlap the given timespan
 - `http POST calendar.url/events { "description": "Description of the event", "startDate": "2015-04-20 09:00:00", "endDate": "2015-04-20 11:00:00" }` creates an event
+- `http PUT calendar.url/events/7 { "description": "new Description of the event", "id": 24, "endDate": "2015-05-24 11:00:00" }` modifies the given fields of the event with `id` set to 7 
 - `http DELETE calendar.url/events/13` deletes the event with the `id` being 13
 
 ### Event data format
@@ -47,7 +49,7 @@ Example of an event:
 - make sure you have `node.js` installed
 - open a shell in the project directory and run `npm install` to install dependencies
 - tune the `settings.json` file as needed to make sure the service can connect to your MySQL database
-- if you want to run the HTML GUI then you will need to go to the `/gui` folder and run `bower install` to install client-side libraries. If you don't have `bower`, you can install it globally with `npm install -g bower`. More information is available on [bower.io](http://bower.io)
+- if you want to run the HTML GUI then you will need to run `bower install` to install client-side libraries. If you don't have `bower`, you can install it globally with `npm install -g bower`. More information is available on [bower.io](http://bower.io)
 - run the service by launching `node calendar.js`.
 
 ### Settings
@@ -82,9 +84,14 @@ Node dependencies:
 - `chalk` for coloring the stdout
 - `commander` for command line argument parsing
 
-Bower dependencies (to be installed in `/gui`):
-- `bootstrap-calendar` for the calendar user interface
-
+Bower dependencies (only necessary for the gui):
+- `angular` for the frontend logic
+- `jquery` for manipulating the dom
+- `bootstrap` for the user interface
+- `bootstrap-calendar` for the calendar views
+- `sweetalert` for the alerts
+- `moment` for managing dates and datetimes
+ 
 ## Credits
 
 Built as a school project by [Enrico Fasoli](http://github.com/fazo96), Asjon Dalipaj, Stefano Frittoli, Gianluca Rocco, Matteo Cattaneo, Matteo Murelli.
