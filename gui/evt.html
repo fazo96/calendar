@@ -1,6 +1,7 @@
-Event:
-{{data}}
-{{data.id}}
-{{data.description}}
-{{data.startDate}}
-{{data.endDate}}
+<h2>{{data.description}}</h2>
+
+<p><b>Start Date</b>: {{startDateFN}} ({{startDate}})</p>
+<p><b>Fine</b>: {{endDateFN}} ({{endDate}})</p>
+
+<button class="btn btn-danger" ng-click="delete()">Delete</button>
+<a class="btn btn-primary" href="/edit/{{data.id}}">Edit</button>

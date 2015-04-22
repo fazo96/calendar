@@ -39,7 +39,7 @@ app.controller('calendarController', function($scope,$http){
   })
 })
 
-app.controller('insertController', function($scope){
+app.controller('insertController', function($scope,$http){
   $scope.desc = ""
   var opt = {
     format: 'YYYY-MM-DD HH:mm',
@@ -63,9 +63,19 @@ app.controller('insertController', function($scope){
   }
 })
 
-app.controller('evtController', function($scope,$routeParams,$http){
+app.controller('evtController', function($scope,$routeParams,$http,$location){
   $http.get('/events/'+$routeParams.id).success(function(data){
     console.log(data[0])
     $scope.data = data[0] 
+    $scope.startDateFN = moment(data[0].startDate).fromNow()
+    $scope.endDateFN = moment(data[0].endDate).fromNow()
+    $scope.startDate = moment(data[0].startDate).format("dddd D MMMM YYYY HH:mm:ss")
+    $scope.endDate = moment(data[0].endDate).format("dddd D MMMM YYYY HH:mm:ss")
   })
+  $scope.delete = function(){
+    $http.delete('/events/'+$routeParams.id).success(function(data){
+      console.log('deleted')
+      $location.url('/')
+    })
+  }
 })
