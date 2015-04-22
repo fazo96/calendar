@@ -79,6 +79,15 @@ app.use(bodyParser.json())
 // Serve static files
 if(settings.enableGUI){
   app.use(express.static("gui"))
+  // Make angular html5 mode work
+  function sendIndex(req,res){
+    console.log('sending',__dirname+'/gui/index.html')
+    res.sendFile(__dirname+'/gui/index.html')
+  }
+  var links = ["/evt/:id","/insert"]
+  for(var i in links){
+    app.get(links[i],sendIndex)
+  }
   console.log(chalk.green("Enabled "+chalk.bold("HTML GUI")))
 } else console.log(chalk.green("Disabled "+chalk.bold("HTML GUI")))
 
@@ -143,6 +152,15 @@ app.post('/events',function(req,res){
   query += req.body.description+"','"+req.body.startDate+"','"+req.body.endDate+"');"
   execute(query,res);
 });
+
+// "PUT EVENT" api definition
+app.put('/events/:id',function(req,res){
+  var query = ""
+  for(var o in req.body){
+    if(o != "id") query += "update table events set "+o+'="'+req.body[o]+'" where id = '+req.body['id']+';'
+  } 
+  execute(query,res)
+})
 
 // "DAY" api definition
 function dayQuery(date){

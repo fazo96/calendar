@@ -1,17 +1,18 @@
 var app = angular.module('calendar', ['ngRoute'])
 
-app.config(function($routeProvider){
+app.config(function($routeProvider,$locationProvider){
+  $locationProvider.html5Mode({enabled: true, requireBase: false})
   // Every url goes to calendar.html template
   $routeProvider.when('/insert', {
-    templateUrl: 'insert.html',
+    templateUrl: '/insert.html',
     controller: 'insertController'
   })
   $routeProvider.when('/evt/:id', {
-    templateUrl: 'evt.html',
+    templateUrl: '/evt.html',
     controller: 'evtController'
   })
   $routeProvider.otherwise({
-    templateUrl: 'calendar.html',
+    templateUrl: '/calendar.html',
     controller: 'calendarController'
   })
 })
@@ -24,7 +25,7 @@ app.controller('calendarController', function($scope,$http){
       return {
         id: item.id,
         title: item.description,
-        url: '#/evt/'+item.id,
+        url: '/evt/'+item.id,
         start: moment(item.startDate).valueOf(),
         end: moment(item.endDate).valueOf()
       }
