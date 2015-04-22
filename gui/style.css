@@ -9,6 +9,11 @@ h1 a:hover {
 
 h2 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 2em; }
 
+#cal-title {
+  display: inline-block;
+  margin: 0;
+}
+
 .navbar {
   margin-top: .25em;
   margin-right: .1em;

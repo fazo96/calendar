@@ -18,6 +18,7 @@ app.config(function($routeProvider,$locationProvider){
 })
 
 app.controller('calendarController', function($scope,$http){
+  $scope.loaded = false
   // GET all the events
   $http.get("/events").success(function(items){
     // Convert them to GUI format
@@ -34,8 +35,15 @@ app.controller('calendarController', function($scope,$http){
     // Create calendar with given events
     $scope.calendar = $("#calendar").calendar({
       tmpl_path: "bower_components/bootstrap-calendar/tmpls/",
-      events_source: ev 
+      events_source: ev,
+      onAfterViewLoad: function(view){
+        console.log(this)
+        $('#cal-title').text(this.getTitle())
+      }
     })
+    $scope.loaded = true
+  }).error(function(data,status){
+    swal('Error '+status, data, 'error')
   })
 })
 
@@ -66,19 +74,30 @@ app.controller('insertController', function($scope,$http,$location){
 })
 
 app.controller('evtController', function($scope,$routeParams,$http,$location){
+  $scope.canDelete = false
+  $scope.dataLoaded = false
   $http.get('/events/'+$routeParams.id).success(function(data){
+    $scope.dataLoaded = true
     console.log(data[0])
     $scope.data = data[0] 
     $scope.startDateFN = moment(data[0].startDate).fromNow()
     $scope.endDateFN = moment(data[0].endDate).fromNow()
     $scope.startDate = moment(data[0].startDate).format("dddd D MMMM YYYY HH:mm:ss")
     $scope.endDate = moment(data[0].endDate).format("dddd D MMMM YYYY HH:mm:ss")
+    $scope.canDelete = true
+  }).error(function(data,status){
+    swal('Error '+status, data, 'error')
   })
   $scope.delete = function(){
     function reallyDelete(){
+      $scope.canDelete = false
+      $scope.$apply()
       $http.delete('/events/'+$routeParams.id).success(function(data){
-        console.log('deleted')
+        swal('Done!','the event has been deleted', 'success')
         $location.url('/')
+      }).error(function(data,status){
+        $scope.canDelete = false
+        swal('Error '+status, data, 'error')
       })
     }
     swal({

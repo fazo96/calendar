@@ -1,7 +1,14 @@
-<h2>{{data.description}}</h2>
+<div ng-show="!dataLoaded" class="text-center">
+  <i class="fa fa-spin fa-cog fa-3x"></i>
+</div>
+<div ng-show="dataLoaded">
+  <h2>{{data.description}}</h2>
 
-<p><b>Start Date</b>: {{startDateFN}} ({{startDate}})</p>
-<p><b>Fine</b>: {{endDateFN}} ({{endDate}})</p>
+  <p><b>Start Date</b>: {{startDateFN}} ({{startDate}})</p>
+  <p><b>Fine</b>: {{endDateFN}} ({{endDate}})</p>
 
-<button class="btn btn-danger" ng-click="delete()">Delete</button>
-<a class="btn btn-primary" href="/edit/{{data.id}}">Edit</button>
+  <button class="btn btn-danger" ng-click="delete()" ng-disabled="!canDelete">
+    <i class="fa fa-ban"></i> Delete</button>
+  <a class="btn btn-primary" href="/edit/{{data.id}}" ng-disabled="true">
+    <i class="fa fa-edit"></i> Edit</a>
+</div>
