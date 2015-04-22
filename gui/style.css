@@ -23,3 +23,13 @@ input {
   max-width: 30em;
   margin: 0 auto;
 }
+
+#desc {
+  display: inline-block;
+  max-width: 20em;
+}
+
+#insert-btn {
+  display: inline-block;
+  margin-bottom: 3px;
+}

@@ -39,7 +39,7 @@ app.controller('calendarController', function($scope,$http){
   })
 })
 
-app.controller('insertController', function($scope,$http){
+app.controller('insertController', function($scope,$http,$location){
   $scope.desc = ""
   var opt = {
     format: 'YYYY-MM-DD HH:mm',
@@ -53,12 +53,14 @@ app.controller('insertController', function($scope,$http){
     $('#start').data("DateTimePicker").maxDate(e.date);
   });
   $scope.insert = function(){
-    var sd = $('#start').data("DateTimePicker").date().format('YYYY-MM-DD hh:mm:ss')
-    var ed = $('#end').data("DateTimePicker").date().format('YYYY-MM-DD hh:mm:ss')
+    var sd = $('#start').data("DateTimePicker").date().format('YYYY-MM-DD HH:mm')+":00"
+    var ed = $('#end').data("DateTimePicker").date().format('YYYY-MM-DD HH:mm')+":00"
+    console.log(sd,ed)
     var obj = { description: $scope.desc, startDate: sd, endDate: ed }
     console.log(JSON.stringify(obj))
-    $http.post('/events',JSON.stringify(obj)).success(function(){
-      console.log('posted')
+    $http.post('/events',JSON.stringify(obj)).success(function(data){
+      swal('Ok', 'event succesfully posted', 'success')
+      $location.url('/evt/'+data.insertId)
     })
   }
 })
@@ -73,9 +75,19 @@ app.controller('evtController', function($scope,$routeParams,$http,$location){
     $scope.endDate = moment(data[0].endDate).format("dddd D MMMM YYYY HH:mm:ss")
   })
   $scope.delete = function(){
-    $http.delete('/events/'+$routeParams.id).success(function(data){
-      console.log('deleted')
-      $location.url('/')
-    })
+    function reallyDelete(){
+      $http.delete('/events/'+$routeParams.id).success(function(data){
+        console.log('deleted')
+        $location.url('/')
+      })
+    }
+    swal({
+      title: "Are you sure?",
+      text: "The event will be lost forever",
+      type: "warning", 
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      closeOnConfirm: true
+    }, reallyDelete)
   }
 })

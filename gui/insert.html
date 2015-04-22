@@ -1,9 +1,20 @@
-<h2>Insert a new Event</h2>
-<input type="text" placeholder="Description" class="form-control" ng-model="desc" />
-<div class="text-center"><h3>Start moment</h3></div>
-<div class="datetime" id="start"></div>
-<div class="text-center"><h3>End moment</h3></div>
-<div class="datetime" id="end"></div>
-<button type="button" class="btn btn-success" ng-click="insert()">
-  <i class="fa fa-check"></i> Save
-</button>
+<div id="insert-ui" class="text-center">
+  <div class="row">
+    <h2>Insert a new Event</h2>
+    <input type="text" id="desc" placeholder="Description" class="form-control" ng-model="desc" />
+    <button type="button" id="insert-btn" class="btn btn-success btn-sm" ng-click="insert()">
+      <i class="fa fa-check"></i> Save
+    </button>
+  </div>
+  <div class="row">
+    <div class="col-md-5">
+      <div class="text-center"><h3>Start moment</h3></div>
+      <div class="datetime" id="start"></div>
+    </div>
+    <div class="separator col-md-2"></div>
+    <div class="col-md-5">
+      <div class="text-center"><h3>End moment</h3></div>
+      <div class="datetime" id="end"></div>
+    </div>
+  </div>
+</div>
