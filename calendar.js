@@ -155,10 +155,11 @@ app.post('/events',function(req,res){
 
 // "PUT EVENT" api definition
 app.put('/events/:id',function(req,res){
-  var query = ""
+  var arr = []
   for(var o in req.body){
-    if(o != "id") query += "update table events set "+o+'="'+req.body[o]+'" where id = '+req.body['id']+';'
+    arr.push(o+'="'+req.body[o]+'"')
   } 
+  var query = "update events set "+arr.join(', ')+' where id = '+req.params.id+';'
   execute(query,res)
 })
 
