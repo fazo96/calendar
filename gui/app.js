@@ -17,6 +17,16 @@ app.config(function($routeProvider,$locationProvider){
   })
 })
 
+app.controller('mainController',function($scope){
+  if(!$scope.socket && io){
+    s = io()
+    s.on('new-event', function(data){
+      toastr['info']('Event "'+data.description+'" has been created')
+    })
+    $scope.socket = s  
+  }
+})
+
 app.controller('calendarController', function($scope,$http){
   $scope.loaded = false
   // GET all the events

@@ -54,7 +54,7 @@ console.log(chalk.green(chalk.bold("PID: ") + process.pid))
 var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, description char(50) not null, startDate DATETIME not null, endDate DATETIME not null);'
 
 // Configure web server
-var app, secondaryApp;
+var app, srv, io, secondaryApp;
 if(settings.httpsKey && settings.httpsCertificate) {
   // Use HTTPS
   console.log(chalk.green.bold("Using HTTPs"))
@@ -66,6 +66,9 @@ if(settings.httpsKey && settings.httpsCertificate) {
 } else {
   app = express();
 }
+srv = require('http').Server(app)
+io = require('socket.io')(srv)
+console.log(chalk.green('Activating WebSocket API'))
 
 // Configure Web server Middlewares
 app.use(function (req, res, next) {
@@ -132,16 +135,19 @@ if(cli.init){
 
 // This function executes a query and when it's done replies
 // to the HTTP request with the results 
-function execute(query,res,code){
+function execute(query,res,code,onSuccess){
   console.log(chalk.green('Querying: ') + chalk.inverse(query))
   connection.query(query, function(err,rows){
     // Query finished
     if(err){
-      res.status(400).json(err);
+      if(res) res.status(400).json(err);
       console.log(chalk.red('Replying: ') + chalk.underline(400) + chalk.red(' With Error: ') + chalk.inverse(err))
     } else {
-      res.status(code || 200).json(rows);
+      if(res) res.status(code || 200).json(rows);
       console.log(chalk.green('Replying: ') + chalk.underline(code || 200) + chalk.green(' With Data: ') + chalk.bold(JSON.stringify(rows)))
+      if(onSuccess && onSuccess.call){
+        onSuccess(rows)
+      }
     }
   });
 }
@@ -150,7 +156,9 @@ function execute(query,res,code){
 app.post('/events',function(req,res){
   var query = "insert into events (description,startDate,endDate) values ('";
   query += req.body.description+"','"+req.body.startDate+"','"+req.body.endDate+"');"
-  execute(query,res);
+  execute(query,res,200,function(){
+    if(usingio) io.emit('new-event',req.body)
+  });
 });
 
 // "PUT EVENT" api definition
@@ -160,7 +168,12 @@ app.put('/events/:id',function(req,res){
     arr.push(o+'="'+req.body[o]+'"')
   } 
   var query = "update events set "+arr.join(', ')+' where id = '+req.params.id+';'
-  execute(query,res)
+  execute(query,res,200,function(){
+    if(!usingio) return;
+    var obj = req.body
+    obj.oldId = req.params.id
+    io.emit('updated-event',obj)
+  })
 })
 
 // "DAY" api definition
@@ -173,13 +186,17 @@ app.get('/events/day/:date',function(req,res){
 });
 
 app.delete('/events/day/:date',function(req,res){
-  execute("delete" + dayQuery(req.params.date),res);
+  execute("delete" + dayQuery(req.params.date),res,200,function(){
+    if(usingio) io.emit('deleted-events', { day: req.params.date })
+  });
 });
 
 // "ID" api definition
 app.delete('/events/:id',function(req,res){
   var query = "delete from events where id = "+req.params.id+";";
-  execute(query,res);
+  execute(query,res,200,function(){
+    if(usingio) io.emit('deleted-event', req.params.id)
+  });
 });
 
 app.get('/events/:id',function(req,res){
@@ -202,7 +219,9 @@ app.get('/events/:date1/:date2',function(req,res){
 });
 
 app.delete('/events/:date1/:date2',function(req,res){
-  execute("delete" + timespanQuery(req.params.date1,req.params.date2),res);
+  execute("delete" + timespanQuery(req.params.date1,req.params.date2),res,200,function(){
+    if(usingio) io.emit('deleted-events', { from: req.params.date1, to: req.params.date2 })
+  });
 });
 
 app.use(function(req,res,next){
@@ -210,10 +229,31 @@ app.use(function(req,res,next){
   next()
 });
 
+// Socket.io
+io.on('connection',function(socket){
+  console.log(chalk.green("WebSocket has connected"))
+  socket.on('get-events', function(data){
+    if(data.day){
+      execute("select *" + dayQuery(data.day),null,200,function(res){
+        socket.emit('events',res)
+      });
+    } else if(data.start && data.end){
+      execute("select *" + timespanQuery(data.start,data.end),null,200,function(res){
+        socket.emit('events',res)
+      });
+    }
+  })
+  socket.on('disconnect', function(data){
+    console.log(chalk.yellow("WebSocket has disconnected"))
+  })
+})
+
+
 // Start the service
-app.listen(settings.port);
-if(secondaryApp && settings.forcehttps && settings.port != 80){
-  secondaryApp.listen(80);
-  console.log(chalk.green('Calendar redirect app started on port ' + chalk.bold.underline(80)));
-}
-console.log(chalk.green('Calendar started on port ' + chalk.bold.underline(settings.port)));
+app.listen(settings.port,function(){
+  if(secondaryApp && settings.forcehttps && settings.enableGui && settings.port != 80){
+    secondaryApp.listen(80);
+    console.log(chalk.green('Calendar redirect app started on port ' + chalk.bold.underline(80)));
+  }
+  console.log(chalk.green('Calendar started on port ' + chalk.bold.underline(settings.port)));
+});
