@@ -29,7 +29,7 @@ input {
   margin: 0 auto;
 }
 
-#desc {
+#evt-title {
   display: inline-block;
   max-width: 20em;
 }

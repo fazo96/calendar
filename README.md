@@ -28,8 +28,8 @@ API endpoints:
 - `http GET calendar.url/events` returns a list of all events
 - `http GET calendar.url/events/2015-03-28` returns a list of events that happen on the given day
 - `http GET calendar.url/events/2015-03-28 09:00:00/2015-04-10 21:00:00` returns a list of events that overlap the given timespan
-- `http POST calendar.url/events { "description": "Description of the event", "startDate": "2015-04-20 09:00:00", "endDate": "2015-04-20 11:00:00" }` creates an event
-- `http PUT calendar.url/events/7 { "description": "new Description of the event", "id": 24, "endDate": "2015-05-24 11:00:00" }` modifies the given fields of the event with `id` set to 7 
+- `http POST calendar.url/events { "title": "title of the event", "startDate": "2015-04-20 09:00:00", "endDate": "2015-04-20 11:00:00" }` creates an event
+- `http PUT calendar.url/events/7 { "title": "new title of the event", "id": 24, "endDate": "2015-05-24 11:00:00" }` modifies the given fields of the event with `id` set to 7. Only the given fields will be modified. Be careful if/when changing IDs!
 - `http DELETE calendar.url/events/13` deletes the event with the `id` being 13
 
 ### Event data format
@@ -38,11 +38,14 @@ Example of an event:
 ```json
 {
   "id": 1,
-  "description": "Meeting",
-  "startDate": "2015-12-30 18:00:00",
-  "endDate": "2015-12-30 20:00:00"
+  "title": "Christmas Dinner",
+  "startDate": "2015-12-24 18:00:00",
+  "endDate": "2015-12-25 02:00:00"
 }
 ```
+
+- __When POSTing an event__ an optional `description` field can be included, `id` will also be autoassigned if missing.
+- __When PUTing (modifying) an event__ all fields are optional; `id` can also be modified (but be careful!)
 
 ## Usage
 

@@ -51,7 +51,7 @@ try {
 console.log(chalk.green(chalk.bold("PID: ") + process.pid))
 
 // Configure MySQL INIT script
-var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, description char(50) not null, startDate DATETIME not null, endDate DATETIME not null);'
+var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, title char(50) not null, description char(255), startDate DATETIME not null, endDate DATETIME not null);'
 
 // Configure web server
 var app, secondaryApp;
@@ -137,7 +137,7 @@ function execute(query,res,code){
   connection.query(query, function(err,rows){
     // Query finished
     if(err){
-      res.status(400).json(err);
+      res.status(400).end("Database "+err);
       console.log(chalk.red('Replying: ') + chalk.underline(400) + chalk.red(' With Error: ') + chalk.inverse(err))
     } else {
       res.status(code || 200).json(rows);
@@ -148,8 +148,13 @@ function execute(query,res,code){
 
 // "ADD EVENT" api definition
 app.post('/events',function(req,res){
-  var query = "insert into events (description,startDate,endDate) values ('";
-  query += req.body.description+"','"+req.body.startDate+"','"+req.body.endDate+"');"
+  var names = []
+  var values = []
+  for(var o in req.body){
+    names.push(o)
+    values.push("'"+req.body[o]+"'")
+  } 
+  var query = "insert into events ("+names.join(',')+") values ("+values.join(',')+");"
   execute(query,res);
 });
 

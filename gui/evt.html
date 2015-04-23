@@ -1,8 +1,9 @@
 <div ng-show="!dataLoaded" class="text-center">
   <i class="fa fa-spin fa-cog fa-3x"></i>
 </div>
+<!-- VISUALIZER -->
 <div ng-show="dataLoaded">
-  <h2>{{data.description}}</h2>
+  <h2>{{data.title}}</h2>
 
   <p><b>Start Date</b>: {{startDateFN}} ({{startDate}})</p>
   <p><b>Fine</b>: {{endDateFN}} ({{endDate}})</p>
@@ -12,11 +13,12 @@
   <button class="btn btn-primary" ng-click="editing = !editing" ng-disabled="!canEdit">
     <i class="fa fa-edit"></i> {{editing? "Close Editor" : "Edit"}}</button>
 </div>
+<!-- EDITOR -->
 <div id="insert-ui" class="text-center" ng-show="canEdit && editing">
   <hr>
   <div class="row">
-    <h3>Edit "{{data.description}}"</h3>
-    <input type="text" id="desc" placeholder="Description" class="form-control" ng-model="desc" />
+    <h3>Edit "{{data.title}}"</h3>
+    <input type="text" id="evt-title" placeholder="Title" class="form-control" ng-model="title" />
     <button type="button" id="insert-btn" class="btn btn-primary btn-sm" ng-click="edit()">
       <i class="fa fa-edit"></i> Save
     </button>

@@ -44,7 +44,7 @@ app.controller('calendarController', function($scope,$http){
     })
     $scope.loaded = true
   }).error(function(data,status){
-    swal('Error '+status, data, 'error')
+    swal('Error Code '+status, data, 'error')
   })
 })
 
@@ -54,7 +54,6 @@ function initDatetimepickers(start,end){
     inline: true, sideBySide: true
   }
   $('.datetime').datetimepicker(opt);
-  console.log(start,end)
   if(start) $('#start').data("DateTimePicker").date(start)
   if(end) $('#end').data("DateTimePicker").date(end)
   $('#start').on("dp.change", function (e) {
@@ -73,12 +72,12 @@ function readDatetimepickers(){
 }
 
 app.controller('insertController', function($scope,$http,$location){
-  $scope.desc = ""
+  $scope.title = ""
   initDatetimepickers()
   $scope.insert = function(){
     var o = readDatetimepickers()
     console.log(o.start,o.end)
-    var obj = { description: $scope.desc, startDate: o.start, endDate: o.end }
+    var obj = { title: $scope.title, startDate: o.start, endDate: o.end }
     console.log(JSON.stringify(obj))
     $http.post('/events',JSON.stringify(obj)).success(function(data){
       swal('Ok', 'event succesfully posted', 'success')
@@ -89,12 +88,18 @@ app.controller('insertController', function($scope,$http,$location){
 
 app.controller('evtController', function($scope,$routeParams,$http,$location){
   $scope.editing = false
+  $scope.title = ""
   $scope.reload = function(){
     $scope.canEdit = false
     $scope.dataLoaded = false
     $http.get('/events/'+$routeParams.id).success(function(data){
       $scope.dataLoaded = true
-      console.log(data[0])
+      if(data.length == 0) // not found
+        return swal({
+          title: "Event Not Found",
+          text: "This event has been deleted or never existed",
+          type: "error", 
+        }, function(){ $location.url('/') })
       $scope.data = data[0] 
       $scope.startDateFN = moment(data[0].startDate).fromNow()
       $scope.endDateFN = moment(data[0].endDate).fromNow()
@@ -103,14 +108,14 @@ app.controller('evtController', function($scope,$routeParams,$http,$location){
       initDatetimepickers(moment(data[0].startDate),moment(data[0].endDate))
       $scope.canEdit = true
     }).error(function(data,status){
-      swal('Error '+status, data, 'error')
+      swal('Error Code '+status, data, 'error')
     })
   }
   $scope.reload()
   $scope.edit = function(){
     function reallyEdit(){
       var o = readDatetimepickers()
-      var obj = {description: $scope.desc, startDate: o.start, endDate: o.end}
+      var obj = {title: $scope.title, startDate: o.start, endDate: o.end}
       $http.put('/events/'+$routeParams.id,obj).success(function(data){
         console.log(data)
         swal('Saved','the event has been overwritten', 'success')
@@ -137,7 +142,7 @@ app.controller('evtController', function($scope,$routeParams,$http,$location){
         $location.url('/')
       }).error(function(data,status){
         $scope.canEdit = false
-        swal('Error '+status, data, 'error')
+        swal('Error Code '+status, data, 'error')
       })
     }
     swal({
