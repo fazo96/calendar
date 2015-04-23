@@ -37,7 +37,8 @@ app.controller('calendarController', function($scope,$http){
       tmpl_path: "bower_components/bootstrap-calendar/tmpls/",
       events_source: ev,
       onAfterViewLoad: function(view){
-        console.log(this)
+        $('.cal-ui').removeClass('active') 
+        $('.'+view).addClass('active') 
         $('#cal-title').text(this.getTitle())
       }
     })
@@ -47,24 +48,37 @@ app.controller('calendarController', function($scope,$http){
   })
 })
 
-app.controller('insertController', function($scope,$http,$location){
-  $scope.desc = ""
+function initDatetimepickers(start,end){
   var opt = {
     format: 'YYYY-MM-DD HH:mm',
     inline: true, sideBySide: true
   }
   $('.datetime').datetimepicker(opt);
+  console.log(start,end)
+  if(start) $('#start').data("DateTimePicker").date(start)
+  if(end) $('#end').data("DateTimePicker").date(end)
   $('#start').on("dp.change", function (e) {
     $('#end').data("DateTimePicker").minDate(e.date);
   });
   $('#end').on("dp.change", function (e) {
     $('#start').data("DateTimePicker").maxDate(e.date);
   });
+}
+
+function readDatetimepickers(){
+  return {
+    start: $('#start').data("DateTimePicker").date().format('YYYY-MM-DD HH:mm')+":00",
+    end: $('#end').data("DateTimePicker").date().format('YYYY-MM-DD HH:mm')+":00"
+  }
+}
+
+app.controller('insertController', function($scope,$http,$location){
+  $scope.desc = ""
+  initDatetimepickers()
   $scope.insert = function(){
-    var sd = $('#start').data("DateTimePicker").date().format('YYYY-MM-DD HH:mm')+":00"
-    var ed = $('#end').data("DateTimePicker").date().format('YYYY-MM-DD HH:mm')+":00"
-    console.log(sd,ed)
-    var obj = { description: $scope.desc, startDate: sd, endDate: ed }
+    var o = readDatetimepickers()
+    console.log(o.start,o.end)
+    var obj = { description: $scope.desc, startDate: o.start, endDate: o.end }
     console.log(JSON.stringify(obj))
     $http.post('/events',JSON.stringify(obj)).success(function(data){
       swal('Ok', 'event succesfully posted', 'success')
@@ -74,29 +88,54 @@ app.controller('insertController', function($scope,$http,$location){
 })
 
 app.controller('evtController', function($scope,$routeParams,$http,$location){
-  $scope.canDelete = false
-  $scope.dataLoaded = false
-  $http.get('/events/'+$routeParams.id).success(function(data){
-    $scope.dataLoaded = true
-    console.log(data[0])
-    $scope.data = data[0] 
-    $scope.startDateFN = moment(data[0].startDate).fromNow()
-    $scope.endDateFN = moment(data[0].endDate).fromNow()
-    $scope.startDate = moment(data[0].startDate).format("dddd D MMMM YYYY HH:mm:ss")
-    $scope.endDate = moment(data[0].endDate).format("dddd D MMMM YYYY HH:mm:ss")
-    $scope.canDelete = true
-  }).error(function(data,status){
-    swal('Error '+status, data, 'error')
-  })
+  $scope.reload = function(){
+    $scope.canEdit = false
+    $scope.dataLoaded = false
+    $http.get('/events/'+$routeParams.id).success(function(data){
+      $scope.dataLoaded = true
+      console.log(data[0])
+      $scope.data = data[0] 
+      $scope.startDateFN = moment(data[0].startDate).fromNow()
+      $scope.endDateFN = moment(data[0].endDate).fromNow()
+      $scope.startDate = moment(data[0].startDate).format("dddd D MMMM YYYY HH:mm:ss")
+      $scope.endDate = moment(data[0].endDate).format("dddd D MMMM YYYY HH:mm:ss")
+      initDatetimepickers(moment(data[0].startDate),moment(data[0].endDate))
+      $scope.canEdit = true
+    }).error(function(data,status){
+      swal('Error '+status, data, 'error')
+    })
+  }
+  $scope.reload()
+  $scope.edit = function(){
+    function reallyEdit(){
+      var o = readDatetimepickers()
+      var obj = {description: $scope.desc, startDate: o.start, endDate: o.end}
+      $http.put('/events/'+$routeParams.id,obj).success(function(data){
+        console.log(data)
+        swal('Saved','the event has been overwritten', 'success')
+        $scope.reload()
+      }) 
+      $scope.canEdit = false
+      $scope.$apply()
+    }
+    swal({
+      title: "Are you sure?",
+      text: "The event will be overwritten",
+      type: "warning", 
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      closeOnConfirm: true
+    }, reallyEdit)
+  }
   $scope.delete = function(){
     function reallyDelete(){
-      $scope.canDelete = false
+      $scope.canEdit = false
       $scope.$apply()
       $http.delete('/events/'+$routeParams.id).success(function(data){
         swal('Done!','the event has been deleted', 'success')
         $location.url('/')
       }).error(function(data,status){
-        $scope.canDelete = false
+        $scope.canEdit = false
         swal('Error '+status, data, 'error')
       })
     }
