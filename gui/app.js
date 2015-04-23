@@ -88,6 +88,7 @@ app.controller('insertController', function($scope,$http,$location){
 })
 
 app.controller('evtController', function($scope,$routeParams,$http,$location){
+  $scope.editing = false
   $scope.reload = function(){
     $scope.canEdit = false
     $scope.dataLoaded = false

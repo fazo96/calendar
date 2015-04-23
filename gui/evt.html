@@ -9,9 +9,11 @@
 
   <button class="btn btn-danger" ng-click="delete()" ng-disabled="!canEdit">
     <i class="fa fa-ban"></i> Delete</button>
+  <button class="btn btn-primary" ng-click="editing = !editing" ng-disabled="!canEdit">
+    <i class="fa fa-edit"></i> {{editing? "Close Editor" : "Edit"}}</button>
 </div>
-<hr>
-<div id="insert-ui" class="text-center" ng-show="canEdit">
+<div id="insert-ui" class="text-center" ng-show="canEdit && editing">
+  <hr>
   <div class="row">
     <h3>Edit "{{data.description}}"</h3>
     <input type="text" id="desc" placeholder="Description" class="form-control" ng-model="desc" />
