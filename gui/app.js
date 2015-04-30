@@ -11,21 +11,25 @@ app.config(function($routeProvider,$locationProvider){
     templateUrl: '/evt.html',
     controller: 'evtController'
   })
-  $routeProvider.otherwise({
+  $routeProvider.when('/:view?',{
     templateUrl: '/calendar.html',
     controller: 'calendarController'
   })
+  $routeProvider.otherwise({
+    redirectTo: '/'
+  })
 })
 
-app.controller('calendarController', function($scope,$http){
+app.controller('calendarController', function($scope,$http,$routeParams){
   $scope.loaded = false
+  console.log($routeParams)
   // GET all the events
   $http.get("/events").success(function(items){
     // Convert them to GUI format
     ev = items.map(function(item){
       return {
         id: item.id,
-        title: item.description,
+        title: item.title,
         url: '/evt/'+item.id,
         start: moment(item.startDate).valueOf(),
         end: moment(item.endDate).valueOf()
@@ -42,6 +46,8 @@ app.controller('calendarController', function($scope,$http){
         $('#cal-title').text(this.getTitle())
       }
     })
+    if(['month','day','week','year'].indexOf($routeParams.view) >= 0)
+      $scope.calendar.view($routeParams.view)
     $scope.loaded = true
   }).error(function(data,status){
     swal('Error Code '+status, data, 'error')

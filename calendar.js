@@ -76,21 +76,6 @@ app.use(function (req, res, next) {
 
 app.use(bodyParser.json())
 
-// Serve static files
-if(settings.enableGUI){
-  app.use(express.static("gui"))
-  // Make angular html5 mode work
-  function sendIndex(req,res){
-    console.log('sending',__dirname+'/gui/index.html')
-    res.sendFile(__dirname+'/gui/index.html')
-  }
-  var links = ["/evt/:id","/insert"]
-  for(var i in links){
-    app.get(links[i],sendIndex)
-  }
-  console.log(chalk.green("Enabled "+chalk.bold("HTML GUI")))
-} else console.log(chalk.green("Disabled "+chalk.bold("HTML GUI")))
-
 // Fix request URLs
 app.use(function(req,res,next){
   req.url = req.url.replace("%20"," ")
@@ -209,6 +194,17 @@ app.get('/events/:date1/:date2',function(req,res){
 app.delete('/events/:date1/:date2',function(req,res){
   execute("delete" + timespanQuery(req.params.date1,req.params.date2),res);
 });
+
+if(settings.enableGUI){
+  // Serve static files
+  app.use(express.static("gui"))
+  console.log(chalk.green("Enabled "+chalk.bold("HTML GUI")))
+  // Make angular html5 mode work
+  app.get('*',function(req,res){
+    console.log('sending',__dirname+'/gui/index.html')
+    res.sendFile(__dirname+'/gui/index.html')
+  })
+} else console.log(chalk.green("Disabled "+chalk.bold("HTML GUI")))
 
 app.use(function(req,res,next){
   console.log(chalk.green('Replying: ') + chalk.underline(res.code) + chalk.green(' With Data: ') + chalk.bold(JSON.stringify(res.body)))
