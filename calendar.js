@@ -51,7 +51,7 @@ try {
 console.log(chalk.green(chalk.bold("PID: ") + process.pid))
 
 // Configure MySQL INIT script
-var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, title char(50) not null, description char(255), startDate DATETIME not null, endDate DATETIME not null);'
+var initSql = 'create database IF NOT EXISTS calendar;\nuse calendar;\nCREATE TABLE events(id int auto_increment primary key, title char(50) not null, description char(255), startDate DATETIME not null, endDate DATETIME not null);\nCREATE TABLE tag(name char(20) primary key);\nCREATE TABLE tags(name char(20) primary key);\ncreate table tag_group(tag char(20), tags char(20), foreign key (tag) references tag(name), foreign key (tags) references tags(name));'
 
 // Configure web server
 var app, secondaryApp;

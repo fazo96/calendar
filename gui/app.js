@@ -15,6 +15,10 @@ app.config(function($routeProvider,$locationProvider){
     templateUrl: '/calendar.html',
     controller: 'calendarController'
   })
+  $routeProvider.when('/tags',{
+    templateUrl: '/tags.html',
+    controller: 'tagController'
+  })
   $routeProvider.otherwise({
     redirectTo: '/'
   })
@@ -22,7 +26,8 @@ app.config(function($routeProvider,$locationProvider){
 
 app.controller('calendarController', function($scope,$http,$routeParams){
   $scope.loaded = false
-  console.log($routeParams)
+  if(['month','day','week','year'].indexOf($routeParams.view) >= 0)
+    $scope.calendar.view($routeParams.view)
   // GET all the events
   $http.get("/events").success(function(items){
     // Convert them to GUI format
@@ -35,7 +40,6 @@ app.controller('calendarController', function($scope,$http,$routeParams){
         end: moment(item.endDate).valueOf()
       }
     })
-
     // Create calendar with given events
     $scope.calendar = $("#calendar").calendar({
       tmpl_path: "bower_components/bootstrap-calendar/tmpls/",
@@ -46,13 +50,14 @@ app.controller('calendarController', function($scope,$http,$routeParams){
         $('#cal-title').text(this.getTitle())
       }
     })
-    if(['month','day','week','year'].indexOf($routeParams.view) >= 0)
-      $scope.calendar.view($routeParams.view)
+    console.log($scope.calendar)
     $scope.loaded = true
   }).error(function(data,status){
     swal('Error Code '+status, data, 'error')
   })
 })
+
+app.controller('tagController',function($scope){})
 
 function initDatetimepickers(start,end){
   var opt = {
